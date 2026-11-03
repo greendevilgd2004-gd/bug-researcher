@@ -1,0 +1,67 @@
+# قوانین ساده‌ی فاز اول.
+# هر قانون بر اساس نام سرویس شناسایی‌شده توسط nmap match می‌شه.
+# افزودن قانون جدید = فقط اضافه کردن یک آیتم اینجا، بدون نیاز به تغییر کد پایتون.
+
+rules:
+  - id: "TELNET-OPEN"
+    match_service: "telnet"
+    severity: "critical"
+    title: "سرویس Telnet بدون رمزنگاری باز است"
+    recommendation: "Telnet ترافیک (از جمله پسورد) را رمزنگاری نمی‌کند. سرویس را غیرفعال و به‌جایش از SSH استفاده کنید."
+    action: "close_port"
+
+  - id: "FTP-OPEN"
+    match_service: "ftp"
+    severity: "high"
+    title: "سرویس FTP ساده (بدون TLS) باز است"
+    recommendation: "در صورت نیاز به انتقال فایل، از SFTP یا FTPS استفاده کنید. اگر لازم نیست، پورت را ببندید."
+    action: "harden"
+
+  - id: "RDP-OPEN"
+    match_service: "ms-wbt-server"
+    severity: "high"
+    title: "دسترسی Remote Desktop از روی شبکه باز است"
+    recommendation: "RDP را فقط از طریق VPN در دسترس بگذارید و Network Level Authentication را فعال کنید."
+    action: "harden"
+
+  - id: "MYSQL-EXPOSED"
+    match_service: "mysql"
+    severity: "high"
+    title: "پایگاه‌داده MySQL مستقیماً روی شبکه در دسترس است"
+    recommendation: "دسترسی به پورت دیتابیس را به IPهای مجاز (مثلاً سرور اپلیکیشن) محدود کنید؛ از اینترنت باز نباشد."
+    action: "harden"
+
+  - id: "MONGODB-EXPOSED"
+    match_service: "mongodb"
+    severity: "high"
+    title: "پایگاه‌داده MongoDB مستقیماً روی شبکه در دسترس است"
+    recommendation: "احراز هویت را فعال کنید و دسترسی شبکه را محدود کنید؛ بسیاری از حملات روی MongoDBهای بدون پسورد باز رخ داده."
+    action: "harden"
+
+  - id: "REDIS-EXPOSED"
+    match_service: "redis"
+    severity: "high"
+    title: "Redis مستقیماً روی شبکه در دسترس است"
+    recommendation: "Redis به‌صورت پیش‌فرض بدون پسورد است. requirepass را تنظیم کنید یا دسترسی شبکه را محدود کنید."
+    action: "harden"
+
+  - id: "VNC-OPEN"
+    match_service: "vnc"
+    severity: "high"
+    title: "سرویس VNC بدون رمزنگاری کافی باز است"
+    recommendation: "در صورت نیاز، VNC را فقط از طریق تونل SSH/VPN در دسترس بگذارید."
+    action: "harden"
+
+  - id: "SSH-OPEN"
+    match_service: "ssh"
+    severity: "info"
+    title: "سرویس SSH باز است (معمولاً طبیعی است)"
+    recommendation: "مطمئن شوید ورود root مستقیم غیرفعال است و احراز هویت با کلید (نه پسورد) انجام می‌شود."
+    action: "review"
+
+# قانونی که برای هر سرویس شناسایی‌نشده در لیست بالا اعمال می‌شود
+default_rule:
+  severity: "low"
+  title_template: "سرویس {service} روی پورت {port} باز است"
+  recommendation: "اگر این سرویس مورد استفاده نیست، آن را غیرفعال یا پورتش را ببندید. در غیر این صورت از آخرین نسخه و تنظیمات امن آن مطمئن شوید."
+  action: "review"
